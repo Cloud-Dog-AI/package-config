@@ -1,0 +1,16 @@
+# cloud_dog_config — defaults.yaml
+#
+# This file MUST NOT contain real secrets. It provides safe defaults that can be
+# overridden by config.yaml, env files, and os.environ per PS-80.
+
+config:
+  unresolved_policy: "strict"   # strict | warn | empty
+  vault_enabled: true
+
+vault:
+  server: ""
+  key: ""
+  mount_point: ""          # optional override; may be provided via VAULT_MOUNT_POINT
+  config_path: ""          # optional path prefix under mount; e.g. "config"
+  timeout_seconds: 5
+  retries: 1
