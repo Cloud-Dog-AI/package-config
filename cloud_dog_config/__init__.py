@@ -1,0 +1,60 @@
+# Copyright 2026 Cloud-Dog, Viewdeck Engineering Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# cloud_dog_config — Public API
+#
+# Licence: Proprietary — Cloud-Dog AI Platform
+# Owner: Cloud-Dog AI
+# Description: PS-80 configuration loader implementing canonical precedence,
+#   compile-time placeholder resolution (refs, Vault, safe expressions),
+#   schema validation, and an immutable GlobalConfig snapshot.
+# Related requirements: SV1.1, SV1.2, FR1.1, FR1.4, FR1.11
+# Related architecture: SA1, CC1.1, CC1.7
+#
+# Recent changes:
+# - 2026-02-18: Added metadata, legacy adapter, profiles, bind, diff, export APIs.
+# - 2026-02-15: Initial implementation.
+
+"""cloud_dog_config — PS-80 configuration loader for Cloud-Dog services."""
+
+from __future__ import annotations
+
+from cloud_dog_config.bind import bind_model
+from cloud_dog_config.cli import normalise_env_files, resolve_runtime_env_files
+from cloud_dog_config.compat import LegacyConfigAdapter
+from cloud_dog_config.config import GlobalConfig
+from cloud_dog_config.diff import ConfigChange, config_diff
+from cloud_dog_config.export import export_config
+from cloud_dog_config.loader import get_config, load_config, reload_config
+from cloud_dog_config.metadata import EnvMetadata, get_env_metadata
+from cloud_dog_config.profiles import resolve_profile
+from cloud_dog_config.transforms import resolve_file_keys
+
+__all__ = [
+    "ConfigChange",
+    "EnvMetadata",
+    "GlobalConfig",
+    "LegacyConfigAdapter",
+    "bind_model",
+    "config_diff",
+    "export_config",
+    "get_env_metadata",
+    "normalise_env_files",
+    "get_config",
+    "load_config",
+    "reload_config",
+    "resolve_runtime_env_files",
+    "resolve_file_keys",
+    "resolve_profile",
+]

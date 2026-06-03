@@ -1,0 +1,42 @@
+[project]
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "Cloud-Dog, Viewdeck Engineering Limited" }
+]
+name = "cloud-dog-config"
+version = "0.3.2"
+description = "PS-80 Configuration Management for Cloud-Dog services"
+requires-python = ">=3.10"
+dependencies = [
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+vault = [
+  "hvac>=2.0",
+]
+schema = [
+  "pydantic>=2.0",
+]
+dev = [
+  "pytest>=8.0",
+  "pytest-cov>=5.0",
+  "ruff>=0.4",
+]
+
+[project.entry-points.pytest11]
+cloud_dog_config = "cloud_dog_config.pytest_plugin"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[project.urls]
+"Source" = "https://github.com/cloud-dog-ai/platform-config"
