@@ -1,0 +1,12 @@
+# cloud_dog_config — Integration test environment (non-secret)
+#
+# For real Vault tests, run with a secrets env file that provides:
+# - CLOUD_DOG__VAULT__SERVER
+# - CLOUD_DOG__VAULT__KEY
+#
+# Example:
+#   pytest --env tests/env-IT --env /opt/iac/Development/cloud-dog-ai/env-vault
+CLOUD_DOG__CONFIG__UNRESOLVED_POLICY=strict
+CLOUD_DOG__VAULT__ENABLED=true
+# Use readable test subtree for Vault discovery integration tests.
+VAULT_CONFIG_PATH=cloud_dog_config_it

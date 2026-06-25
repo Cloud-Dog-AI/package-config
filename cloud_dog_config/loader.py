@@ -58,6 +58,13 @@ from cloud_dog_config.vault.mock_client import MockVaultClient
 _CONFIG_LOCK = threading.Lock()
 _CURRENT: GlobalConfig | None = None
 _VERSION_COUNTER = 0
+#: The kwargs of the most recent successful ``load_config`` call. Remembered so a
+#: live reload (PS-80 hot reload / PS-93 Vault rotation self-heal) can re-run the
+#: SAME load context — re-resolving ``vault.*`` identifiers LIVE in-process — without
+#: the caller having to re-pass env files. A bare ``reload_config()`` previously
+#: reloaded with defaults, dropping the service's env files; ``trigger_live_reload``
+#: closes that gap.
+_LAST_LOAD_KWARGS: dict[str, Any] = {}
 _ENV_IDENT_RE = re.compile(r"\b[A-Z_][A-Z0-9_]*\b")
 _EXPR_IDENT_IGNORE = frozenset({"TRUE", "FALSE", "NULL"})
 
@@ -72,16 +79,22 @@ def load_config(
     transforms: list[Callable[[dict[str, Any]], dict[str, Any]]] | None = None,
 ) -> GlobalConfig:
     """Load, merge, compile, transform, validate, and freeze configuration."""
-    compiled, sources = _build_compiled_tree(
-        env_files=env_files,
-        config_yaml=config_yaml,
-        defaults_yaml=defaults_yaml,
-        schema=schema,
-        unresolved_policy=unresolved_policy,
-        vault_enabled=vault_enabled,
-        transforms=transforms,
-    )
-    return _commit_config(compiled=compiled, sources=sources)
+    load_kwargs: dict[str, Any] = {
+        "env_files": env_files,
+        "config_yaml": config_yaml,
+        "defaults_yaml": defaults_yaml,
+        "schema": schema,
+        "unresolved_policy": unresolved_policy,
+        "vault_enabled": vault_enabled,
+        "transforms": transforms,
+    }
+    compiled, sources = _build_compiled_tree(**load_kwargs)
+    result = _commit_config(compiled=compiled, sources=sources)
+    # Remember the load context so a live reload re-resolves the SAME sources
+    # (incl. Vault) without the caller re-passing env files (PS-80 / PS-93).
+    global _LAST_LOAD_KWARGS
+    _LAST_LOAD_KWARGS = dict(load_kwargs)
+    return result
 
 
 def reload_config(timeout_s: float = 30.0, **kwargs: Any) -> GlobalConfig:
@@ -127,6 +140,41 @@ def reload_config(timeout_s: float = 30.0, **kwargs: Any) -> GlobalConfig:
             new_version=new.version,
         )
     return new
+
+
+def trigger_live_reload(timeout_s: float = 30.0) -> GlobalConfig:
+    """Re-resolve config LIVE from the same sources, incl. Vault (PS-80/PS-93/PS-71).
+
+    This is the canonical platform self-heal / hot-reload entry point. It re-runs the
+    loader with the **remembered** load context (the env files + config/defaults yaml
+    of the most recent ``load_config``), so ``vault.*`` identifiers are re-read LIVE
+    from Vault in-process — NOT from any env-baked resolved value.
+
+    Use it as the standard trigger after:
+      * an API-key / profile / Settings CRUD via the platform's own core API (PS-71
+        API-Keys CRUD operates on the live store), OR
+      * an operator Vault rotation (PS-93).
+
+    The new value takes effect on the running service within this single reload, with
+    **NO container destroy + recreate**. This makes the stale-key problem self-healing:
+    once live-resolution is deployed, restored Vault values take effect on the next
+    live read. The container ``env``/TF MUST pass only ``VAULT_TOKEN`` + the config
+    path (``VAULT_ADDR``/``VAULT_TOKEN``/``VAULT_CONFIG_PATH`` bridge to ``vault.*``),
+    never resolved secret VALUES — baking values reintroduces the recreate-to-update
+    CORE DEFECT.
+
+    Returns:
+        The newly-committed GlobalConfig (atomic swap; the prior snapshot is replaced).
+
+    Raises:
+        ConfigError: if no prior ``load_config`` established a load context.
+    """
+    if not _LAST_LOAD_KWARGS:
+        raise ConfigError(
+            "trigger_live_reload requires a prior load_config to establish the "
+            "load context (env files + yaml sources)."
+        )
+    return reload_config(timeout_s=timeout_s, **_LAST_LOAD_KWARGS)
 
 
 def get_config(path: str | None = None) -> Any:

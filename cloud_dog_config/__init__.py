@@ -36,7 +36,12 @@ from cloud_dog_config.compat import LegacyConfigAdapter
 from cloud_dog_config.config import GlobalConfig
 from cloud_dog_config.diff import ConfigChange, config_diff
 from cloud_dog_config.export import export_config
-from cloud_dog_config.loader import get_config, load_config, reload_config
+from cloud_dog_config.loader import (
+    get_config,
+    load_config,
+    reload_config,
+    trigger_live_reload,
+)
 from cloud_dog_config.metadata import EnvMetadata, get_env_metadata
 from cloud_dog_config.profiles import resolve_profile
 from cloud_dog_config.transforms import resolve_file_keys
@@ -54,6 +59,7 @@ __all__ = [
     "get_config",
     "load_config",
     "reload_config",
+    "trigger_live_reload",
     "resolve_runtime_env_files",
     "resolve_file_keys",
     "resolve_profile",

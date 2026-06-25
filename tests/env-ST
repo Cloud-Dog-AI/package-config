@@ -1,0 +1,3 @@
+# cloud_dog_config — System test environment (non-secret)
+CLOUD_DOG__CONFIG__UNRESOLVED_POLICY=strict
+CLOUD_DOG__VAULT__ENABLED=false
