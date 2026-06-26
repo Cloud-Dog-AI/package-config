@@ -21,7 +21,7 @@ def _find_source_dirs(project_root: pathlib.Path) -> list[pathlib.Path]:
     src = project_root / "src"
     if src.is_dir():
         dirs.append(src)
-    # searxNcrawl has source at crawler/ root level
+    # search-mcp-server has source at crawler/ root level
     crawler = project_root / "crawler"
     if crawler.is_dir():
         dirs.append(crawler)
