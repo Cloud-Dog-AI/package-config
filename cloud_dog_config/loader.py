@@ -59,7 +59,7 @@ _CONFIG_LOCK = threading.Lock()
 _CURRENT: GlobalConfig | None = None
 _VERSION_COUNTER = 0
 #: The kwargs of the most recent successful ``load_config`` call. Remembered so a
-#: live reload (PS-80 hot reload / PS-93 Vault rotation self-heal) can re-run the
+#: live reload (PS-80 hot reload / PS-93 Vault credential refresh self-heal) can re-run the
 #: SAME load context — re-resolving ``vault.*`` identifiers LIVE in-process — without
 #: the caller having to re-pass env files. A bare ``reload_config()`` previously
 #: reloaded with defaults, dropping the service's env files; ``trigger_live_reload``
@@ -153,7 +153,7 @@ def trigger_live_reload(timeout_s: float = 30.0) -> GlobalConfig:
     Use it as the standard trigger after:
       * an API-key / profile / Settings CRUD via the platform's own core API (PS-71
         API-Keys CRUD operates on the live store), OR
-      * an operator Vault rotation (PS-93).
+      * an operator Vault credential refresh (PS-93).
 
     The new value takes effect on the running service within this single reload, with
     **NO container destroy + recreate**. This makes the stale-key problem self-healing:

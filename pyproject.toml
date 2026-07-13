@@ -4,7 +4,7 @@ authors = [
   { name = "Cloud-Dog, Viewdeck Engineering Limited" }
 ]
 name = "cloud-dog-config"
-version = "0.3.2"
+version = "0.3.4"
 description = "PS-80 Configuration Management for Cloud-Dog services"
 requires-python = ">=3.10"
 dependencies = [

@@ -30,6 +30,8 @@
 
 from __future__ import annotations
 
+__version__ = "0.3.4"
+
 from cloud_dog_config.bind import bind_model
 from cloud_dog_config.cli import normalise_env_files, resolve_runtime_env_files
 from cloud_dog_config.compat import LegacyConfigAdapter
@@ -51,6 +53,7 @@ __all__ = [
     "EnvMetadata",
     "GlobalConfig",
     "LegacyConfigAdapter",
+    "__version__",
     "bind_model",
     "config_diff",
     "export_config",

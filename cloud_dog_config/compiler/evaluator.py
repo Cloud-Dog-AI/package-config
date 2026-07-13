@@ -218,6 +218,8 @@ class _Parser:
         while self._peek("plus"):
             self._consume("plus")
             right = self._parse_equality()
+            if _is_plain_number(left) and _is_plain_number(right):
+                raise SafeExpressionError("Arithmetic is not supported")
             # Unresolved on either side produces empty string for that side.
             left_s = "" if isinstance(left, Unresolved) else str(left)
             right_s = "" if isinstance(right, Unresolved) else str(right)
@@ -303,3 +305,7 @@ def _truthy(value: Any) -> bool:
     if isinstance(value, Unresolved):
         return False
     return bool(value)
+
+
+def _is_plain_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
